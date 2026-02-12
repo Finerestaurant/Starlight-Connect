@@ -1,0 +1,32 @@
+.node-info-window {
+  position: absolute;
+  width: 250px;
+  background-color: rgba(12, 12, 26, 0.85); /* Dark navy from background */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  color: white;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 170, 255, 0.3);
+  font-family: sans-serif;
+  font-size: 14px;
+  transform: translate(15px, 15px); /* Offset from cursor */
+  pointer-events: none; /* So it doesn't block mouse events on the canvas */
+}
+
+.node-info-header {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.node-info-content {
+  padding: 10px;
+}
+
+.node-info-content p {
+  margin: 5px 0;
+}
+
+.node-info-content em {
+  color: #aaa;
+}

@@ -1,0 +1,11 @@
+# backend/requirements.txt
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-dotenv
+# DB Driver (for SQLite)
+aiosqlite
+
+# MusicBrainz API Library
+musicbrainzngs
