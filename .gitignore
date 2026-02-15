@@ -1,1 +1,11 @@
 logs/
+client_secret.json
+backend/venv/
+backend/kpop.db
+backend/kpop.db-journal
+node_modules/
+.DS_Store
+__pycache__/
+*.pyc
+frontend/dist/
+.env
