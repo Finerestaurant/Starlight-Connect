@@ -9,6 +9,7 @@ from typing import List, Optional
 class PersonBase(BaseModel):
     name: str
     genius_id: Optional[int] = None
+    image_url: Optional[str] = None
     mbid: Optional[str] = None # MBID 필드 추가
 
 class SongBase(BaseModel):
@@ -16,6 +17,7 @@ class SongBase(BaseModel):
     artist: str
     album: Optional[str] = None
     release_date: Optional[date] = None
+    youtube_url: Optional[str] = None
     genius_id: Optional[int] = None
     mbid: Optional[str] = None # MBID 필드 추가
 
@@ -60,6 +62,7 @@ class BatchImportResponse(BaseModel):
 
 class Person(PersonBase):
     id: int
+    image_url: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -68,6 +71,7 @@ class R_Song(SongBase):
     id: int
     genius_id: Optional[int]
     mbid: Optional[str] # MBID 필드 추가
+    youtube_url: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -123,6 +127,7 @@ class ContributionData(BaseModel):
 class CrawledSongData(SongBase):
     source_url: str
     mbid: Optional[str] = None # MBID 필드 추가
+    youtube_url: Optional[str] = None
     contributions: List[ContributionData]
 
 # --- Schemas for Service Imports ---
@@ -134,3 +139,15 @@ class ExplorationQueueRequest(BaseModel):
     initial_artist_name: Optional[str] = None
     initial_artist_mbid: Optional[str] = None
     max_data_gb: float = 0.05 # 기본 50MB
+
+# --- Schemas for Search ---
+class SearchResultItem(BaseModel):
+    id: int
+    name: str # 아티스트 이름 또는 곡 제목
+    type: str # 'artist' or 'song'
+    mbid: Optional[str] = None
+    image_url: Optional[str] = None # 아티스트 이미지 또는 앨범 커버 (추후)
+    sub_text: Optional[str] = None # 아티스트의 경우 비워두거나, 곡의 경우 아티스트 이름
+
+class SearchResponse(BaseModel):
+    results: List[SearchResultItem]

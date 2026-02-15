@@ -5,11 +5,14 @@ import './App.css';
 import { useGraphData } from './hooks/useGraphData';
 import SearchBar from './SearchBar';
 import NodeInfoWindow from './NodeInfoWindow';
+import HistoryPanel from './HistoryPanel';
 import './SearchBar.css';
 import './NodeInfoWindow.css';
+import './HistoryPanel.css';
 
 const App = () => {
   const [focus, setFocus] = useState({ type: 'person', mbid: 'cfbc0924-0035-4d6c-8197-f024653af823' }); // Start with Nas
+  const [history, setHistory] = useState([]);
   
   const {
     nodes,
@@ -27,6 +30,10 @@ const App = () => {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const dragStartRef = useRef(null);
 
+  const handleHistoryClick = useCallback((historyItem) => {
+    setFocus({ type: historyItem.type, mbid: historyItem.mbid });
+  }, []);
+
   const handleNodeClick = useCallback((event, node) => {
     // Prevent click from being treated as a drag-start
     setHighlightedNodeIds([]);
@@ -39,6 +46,9 @@ const App = () => {
     const mbid = id_parts.slice(1).join('-');
 
     if (!mbid || mbid === focus.mbid) return;
+
+    const newHistoryItem = { type, mbid, name: node.data.label };
+    setHistory(prev => [newHistoryItem, ...prev.filter(item => item.mbid !== mbid)]);
     
     setFocus({ type, mbid });
   }, [focus]);
@@ -161,6 +171,14 @@ const App = () => {
       };
     }), [edges, highlightedEdgeIds]);
 
+  const handleSearchResultSelect = useCallback((item) => {
+    if (item.mbid) {
+        setFocus({ type: item.type, mbid: item.mbid });
+    } else {
+        console.warn("Selected item has no MBID:", item);
+    }
+  }, []);
+
   if (error) {
     return (
         <div style={{ padding: '20px', color: 'red' }}>
@@ -172,8 +190,9 @@ const App = () => {
 
   return (
     <div style={{ height: '100vh', width: '100vw' }}>
-      <SearchBar />
+      <SearchBar onSelect={handleSearchResultSelect} />
       <NodeInfoWindow node={hoveredNode} position={hoverPosition} />
+      <HistoryPanel history={history} onHistoryClick={handleHistoryClick} />
       {isLoading && <div className="loading-indicator">Loading...</div>}
       <ReactFlow
         nodes={nodesWithHighlighting}

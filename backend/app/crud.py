@@ -48,12 +48,13 @@ def create_person(db: Session, person: schemas.PersonCreate) -> models.Person:
         name=person.name,
         genius_id=person.genius_id,
         mbid=person.mbid,
-        is_explored=False # 모델 기본값과 일치 (명시적으로 설정)
+        image_url=person.image_url,
+        is_explored=False
     )
     db.add(db_person)
-    db.flush() # flush to get the person's ID before commit
-    db.refresh(db_person)
-    print(f"[LOG][CRUD] create_person 생성됨: id={db_person.id}, name='{db_person.name}'")
+    # db.flush() # REMOVED
+    # db.refresh(db_person) # REMOVED
+    print(f"[LOG][CRUD] create_person 생성됨: name='{db_person.name}' (ID는 flush/commit 후에만 얻을 수 있음)")
     return db_person
 
 def update_person_explored_status(db: Session, person_id: int, status: bool) -> Optional[models.Person]:
@@ -63,12 +64,16 @@ def update_person_explored_status(db: Session, person_id: int, status: bool) -> 
     if db_person:
         db_person.is_explored = status
         db.add(db_person)
-        db.flush()
-        db.refresh(db_person)
+        # db.flush() # REMOVED
+        # db.refresh(db_person) # REMOVED
         print(f"[LOG][CRUD] update_person_explored_status 업데이트됨: id={db_person.id}, is_explored={db_person.is_explored}")
     else:
         print(f"[LOG][CRUD] update_person_explored_status: person_id={person_id} 찾을 수 없음.")
     return db_person
+
+def search_persons_by_name(db: Session, query: str, limit: int = 10) -> List[models.Person]:
+    """Search for persons by name (partial match)."""
+    return db.query(models.Person).filter(models.Person.name.ilike(f"%{query}%")).limit(limit).all()
 
 
 # --- Song CRUD ---
@@ -110,10 +115,14 @@ def create_song(db: Session, song: models.Song) -> models.Song:
     """단순히 준비된 Song 모델 객체를 데이터베이스에 추가합니다."""
     print(f"[LOG][CRUD] create_song 호출: title='{song.title}', mbid={song.mbid}")
     db.add(song)
-    db.flush()
-    db.refresh(song)
-    print(f"[LOG][CRUD] create_song 생성됨: id={song.id}, title='{song.title}'")
+    # db.flush() # REMOVED
+    # db.refresh(song) # REMOVED
+    print(f"[LOG][CRUD] create_song 생성됨: title='{song.title}' (ID는 flush/commit 후에만 얻을 수 있음)")
     return song
+
+def search_songs_by_title(db: Session, query: str, limit: int = 10) -> List[models.Song]:
+    """Search for songs by title (partial match)."""
+    return db.query(models.Song).filter(models.Song.title.ilike(f"%{query}%")).limit(limit).all()
 
 
 

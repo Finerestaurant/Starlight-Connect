@@ -76,7 +76,7 @@ def import_artist_by_name(request: schemas.ArtistImportRequest, db: Session = De
 
 # --- Exploration Queue Endpoints ---
 @app.post("/import/explore-queue")
-def start_exploration_queue(request: schemas.ExplorationQueueRequest, db: Session = Depends(get_db)):
+def start_exploration_queue(request: schemas.ExplorationQueueRequest):
     """
     MusicBrainz 데이터를 '연쇄 반응' 방식으로 탐색하여 DB에 저장합니다.
     """
@@ -89,7 +89,6 @@ def start_exploration_queue(request: schemas.ExplorationQueueRequest, db: Sessio
 
     try:
         result = musicdata_service.run_exploration_queue(
-            db=db, 
             initial_artist_name=request.initial_artist_name,
             initial_artist_mbid=request.initial_artist_mbid,
             max_data_gb=request.max_data_gb
@@ -224,5 +223,42 @@ def get_artist_collaboration_details_by_mbid(mbid: str, db: Session = Depends(ge
 def get_artist_collaboration_details(genius_id: int, db: Session = Depends(get_db)):
     """특정 아티스트의 협업자 및 협업 곡 목록을 상세히 반환합니다."""
     return crud.get_collaboration_details(db=db, genius_id=genius_id)
+
+
+@app.get("/search", response_model=schemas.SearchResponse)
+def search_db(q: str, db: Session = Depends(get_db)):
+    """
+    내부 DB에서 아티스트와 곡을 검색합니다. (Autocomplete용)
+    """
+    if not q or len(q) < 1:
+        return {"results": []}
+
+    results = []
+    
+    # 1. 아티스트 검색
+    artists = crud.search_persons_by_name(db, query=q, limit=5)
+    for artist in artists:
+        results.append(schemas.SearchResultItem(
+            id=artist.id,
+            name=artist.name,
+            type="person", # 'artist' -> 'person'으로 변경 (프론트엔드 호환성)
+            mbid=artist.mbid,
+            image_url=artist.image_url,
+            sub_text=None
+        ))
+        
+    # 2. 곡 검색
+    songs = crud.search_songs_by_title(db, query=q, limit=5)
+    for song in songs:
+        results.append(schemas.SearchResultItem(
+            id=song.id,
+            name=song.title,
+            type="song",
+            mbid=song.mbid,
+            image_url=None, # 곡 이미지는 앨범 커버 등이 있다면 추가 가능
+            sub_text=song.artist # 곡의 경우 아티스트 이름을 보조 텍스트로 표시
+        ))
+        
+    return {"results": results}
 
 

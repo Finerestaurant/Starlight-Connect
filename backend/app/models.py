@@ -24,6 +24,7 @@ class Song(Base):
     artist = Column(String, index=True)
     album = Column(String)
     release_date = Column(Date)
+    youtube_url = Column(String, nullable=True)
     source_url = Column(String, nullable=True)
 
     # Song이 Contribution 레코드들을 리스트로 가질 수 있도록 관계 설정
@@ -37,6 +38,7 @@ class Person(Base):
     name = Column(String, unique=True, index=True)
     genius_id = Column(Integer, unique=True, index=True, nullable=True)
     mbid = Column(String, unique=True, index=True, nullable=True)
+    image_url = Column(String, nullable=True)
     source_url = Column(String, nullable=True)
     is_explored = Column(Boolean, default=False)
 

@@ -54,7 +54,11 @@ export const getLayoutedElements = (data, focusType) => {
             newNodes.push({
                 id: songId,
                 position: { x: 0, y: 0 },
-                data: { label: data.main.title, degree: 0 },
+                data: { 
+                    label: data.main.title, 
+                    degree: 0,
+                    youtube_url: data.main.youtube_url 
+                },
                 type: 'input',
                 style: nodeStyles.input
             });
@@ -92,7 +96,11 @@ export const getLayoutedElements = (data, focusType) => {
             newNodes.push({
                 id: mainArtistId,
                 position: { x: 0, y: 0 },
-                data: { label: data.main_artist.name, degree: 0 },
+                data: { 
+                    label: data.main_artist.name, 
+                    degree: 0,
+                    image_url: data.main_artist.image_url 
+                },
                 type: 'input',
                 style: nodeStyles.input
             });
@@ -111,7 +119,11 @@ export const getLayoutedElements = (data, focusType) => {
                 newNodes.push({
                     id: collaboratorId,
                     position: { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius },
-                    data: { label: collab.collaborator.name, degree: 2 }, // Changed to degree 2
+                    data: { 
+                        label: collab.collaborator.name, 
+                        degree: 2,
+                        image_url: collab.collaborator.image_url
+                    },
                      style: nodeStyles.person
                 });
                 elements.set(collaboratorId, true);
@@ -128,7 +140,11 @@ export const getLayoutedElements = (data, focusType) => {
                     newNodes.push({
                         id: songId,
                         position: { x: midX + (Math.random() - 0.5) * 80, y: midY + (Math.random() - 0.5) * 80 },
-                        data: { label: song.title, degree: 1 }, // Changed to degree 1
+                        data: { 
+                            label: song.title, 
+                            degree: 1,
+                            youtube_url: song.youtube_url
+                        },
                         style: nodeStyles.song
                     });
                     elements.set(songId, true);

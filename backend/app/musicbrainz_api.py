@@ -71,31 +71,39 @@ def search_artist(query: str) -> Optional[Dict[str, Any]]:
     """
     아티스트 이름으로 MusicBrainz에서 검색하고, 가장 일치하는 아티스트 정보를 반환합니다.
     """
+    print(f"[LOG][MusicBrainz] search_artist 호출: query='{query}'")
     url = f"{BASE_URL}artist/?query={query}&fmt=json"
     result = _make_api_call(url, entity_type="아티스트 검색")
     
     if result and result.get('artists'):
         # 가장 일치도가 높은 첫 번째 아티스트 선택
-        return result['artists'][0]
+        artist = result['artists'][0]
+        print(f"[LOG][MusicBrainz] search_artist 결과: {artist.get('name')} ({artist.get('id')})")
+        return artist
+    print(f"[LOG][MusicBrainz] search_artist 결과 없음.")
     return None
 
 def get_artist_by_mbid(mbid: str) -> Optional[Dict[str, Any]]:
     """
     아티스트의 MBID로 상세 정보와 함께 모든 릴리즈(앨범 등) 정보를 가져옵니다.
     """
+    print(f"[LOG][MusicBrainz] get_artist_by_mbid 호출: mbid='{mbid}'")
     # 'releases' 인자를 포함하여 해당 아티스트의 모든 릴리즈 정보를 함께 요청합니다.
     url = f"{BASE_URL}artist/{mbid}?inc=releases&fmt=json"
     result = _make_api_call(url, entity_type="아티스트 상세 정보")
     
     # 직접 API 호출 시 응답 자체가 artist 객체이므로, 'id' 존재 여부로 확인
     if result and result.get('id'):
+        print(f"[LOG][MusicBrainz] get_artist_by_mbid 성공: {result.get('name')}")
         return result
+    print(f"[LOG][MusicBrainz] get_artist_by_mbid 실패 (ID 없음)")
     return None
 
 def get_artist_recordings(artist_mbid: str, limit: int = 100, offset: int = 0) -> Optional[Dict[str, Any]]:
     """
     아티스트의 모든 Recording(곡) 목록을 가져옵니다. (페이지네이션 지원)
     """
+    print(f"[LOG][MusicBrainz] get_artist_recordings 호출: mbid='{artist_mbid}', offset={offset}, limit={limit}")
     # inc 파라미터에 필요한 정보를 모두 포함
     # artist-credits: 가창자 정보
     # artist-rels: 편곡, 프로듀서 등 아티스트 관계
@@ -104,7 +112,38 @@ def get_artist_recordings(artist_mbid: str, limit: int = 100, offset: int = 0) -
     
     result = _make_api_call(url, entity_type=f"아티스트 곡 목록 (Offset: {offset})")
     
+    count = len(result.get('recordings', [])) if result else 0
+    print(f"[LOG][MusicBrainz] get_artist_recordings 반환: {count}곡")
     return result
+
+def get_artist_image_from_relations(artist_mbid: str) -> Optional[str]:
+    """
+    아티스트의 관계(relations)에서 'image' 타입의 URL을 찾아 반환합니다.
+    Wikimedia Commons URL을 우선적으로 찾습니다.
+    """
+    print(f"[LOG][MusicBrainz] get_artist_image_from_relations 호출: mbid='{artist_mbid}'")
+    url = f"{BASE_URL}artist/{artist_mbid}?inc=url-rels&fmt=json"
+    result = _make_api_call(url, entity_type=f"아티스트 이미지 관계 (MBID: {artist_mbid})")
+    
+    if not (result and result.get('relations')):
+        print(f"[LOG][MusicBrainz] 관계 데이터 없음.")
+        return None
+
+    image_url = None
+    for rel in result['relations']:
+        if rel.get('type') == 'image':
+            target_url = rel.get('url', {}).get('resource')
+            if target_url:
+                # 위키미디어 커먼스 URL을 우선적으로 선택
+                if 'commons.wikimedia.org' in target_url:
+                    print(f"[LOG][MusicBrainz] Wikimedia 이미지 찾음: {target_url}")
+                    return target_url
+                if not image_url: # 다른 이미지 URL이 아직 없으면 일단 저장
+                    image_url = target_url
+    
+    print(f"[LOG][MusicBrainz] 이미지 URL 반환: {image_url}")
+    return image_url
+
 
 def get_release_details_by_mbid(mbid: str) -> Optional[Dict[str, Any]]:
     """

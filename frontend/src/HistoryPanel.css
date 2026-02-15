@@ -1,0 +1,66 @@
+.history-panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 250px;
+  max-height: 400px;
+  background-color: rgba(20, 20, 30, 0.85);
+  border: 1px solid #ffffff33;
+  border-radius: 8px;
+  color: #f0f0f0;
+  z-index: 10;
+  overflow-y: auto;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.history-panel h4 {
+  padding: 12px 15px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #ffffff33;
+  background-color: rgba(30, 30, 40, 0.9);
+  position: sticky;
+  top: 0;
+}
+
+.history-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history-item {
+  padding: 10px 15px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #ffffff1a;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-item:hover {
+  background-color: rgba(70, 130, 180, 0.3); /* steelblue with transparency */
+}
+
+.type-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.type-indicator.person {
+  background-color: #add8e6; /* lightblue */
+}
+
+.type-indicator.song {
+  background-color: #ffd700; /* gold */
+}
